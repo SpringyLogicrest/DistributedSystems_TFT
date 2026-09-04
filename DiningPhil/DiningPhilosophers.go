@@ -71,8 +71,6 @@ func Fork(name string, requests chan ForkRequest, logs chan string) {
 
 // Function for Philosopher that'll become a goroutine. Tells us what Philosopher does.
 func Philosopher(name string, leftFork chan ForkRequest, rightFork chan ForkRequest, reverseOrder bool, mealUpdates chan MealUpdate, logs chan string) {
-	fmt.Println(name + " is thinking...")
-
 	// Make the channels used in ForkRequest.
 	reply := make(chan bool)
 	finished := make(chan bool)
