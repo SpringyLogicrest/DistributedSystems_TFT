@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+	"time"
+)
 
 // ForkRequest is the request that can be given to fork
 type ForkRequest struct {
@@ -33,7 +37,16 @@ func Philosopher(name string, leftFork chan ForkRequest, rightFork chan ForkRequ
 	reply := make(chan bool)
 	finished := make(chan bool)
 
-	//the actual ForkRequest
+
+	for {
+		// here is the thinking time (inspired by sharingtoolbox)
+		//basically we take a random number between 1 and 5 (or you can use any time) and then sleep for that amount of time
+		think_time := rand.Intn(5) +1 //random time to think
+		fmt.Println(name + " is thinking for " + fmt.Sprint(think_time) + " seconds...")
+		time.Sleep(time.Duration(think_time) * time.Second)
+
+
+		//the actual ForkRequest
 	request := ForkRequest{
 		philosopher: name, reply: reply, finished: finished,
 	}
@@ -45,13 +58,19 @@ func Philosopher(name string, leftFork chan ForkRequest, rightFork chan ForkRequ
 	//wait for reply for both left and right fork
 	<-reply
 	<-reply
-
+	// the exact same from previous sleeping time just with a different variable name for eating,
+	eat_time := rand.Intn(5) +1 //random time to eat
 	fmt.Println(name + " is eating...")
+	time.Sleep(time.Duration(eat_time) * time.Second)
 
+	
 	//philosopher is done eating
 	finished <- true
 	finished <- true
 
+
+	}
+	
 }
 
 func main() {
@@ -76,5 +95,7 @@ func main() {
 	go Philosopher("Ghosha", fork3, fork4)
 	go Philosopher("Arete", fork4, fork5)
 	go Philosopher("Diotima", fork5, fork1)
+
+	select{}
 
 }
