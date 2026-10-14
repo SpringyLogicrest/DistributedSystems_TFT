@@ -1,0 +1,42 @@
+syntax = "proto3";
+package chat;
+option go_package = "ChitChat/grpc";
+
+//Join request and response for client wishing to log on
+message JoinRequest{
+    string client_id = 1;
+}
+message JoinResponse{
+    string client_id = 1;
+}
+
+//Leave request and response for client wishing to leave
+message LeaveRequest{
+    string client_id = 1;
+}
+message LeaveResponse{}
+
+//Subscribe Request to recieve broadcast messages
+message SubscribeRequest{
+    string client_id = 1; 
+}
+
+//Message broadcast to all active clients
+message BroadcastMessage{
+    string content = 1;
+    int64 logical_timestamp = 2;
+}
+
+//Publish request and response to send message
+message PublishRequest{
+    string client_id = 1;
+    string content = 2;
+}
+message PublishResponse{}
+
+service ChatService {
+    rpc Join(JoinRequest) returns (JoinResponse);
+    rpc Leave(LeaveRequest) returns (LeaveResponse);
+    rpc Subscribe(SubscribeRequest) returns (stream BroadcastMessage);
+    rpc Publish(PublishRequest) returns (PublishResponse);
+}
