@@ -27,7 +27,7 @@ func server(syn <-chan Packet, ack <-chan Packet, synack chan<- Packet) {
 
 	// so here we just set the sequence number to 0
 	// and then we set the ack number we got from the client and plusses it by 1
-	y:= 0
+	y:= rand.Intn(10000)
 	reply := Packet{SeqNum: y, AckNum: msg.SeqNum + 1, Data: "SYN-ACK"}
 	synack <- reply 
 	fmt.Println("Server has got the message:", msg)
@@ -67,7 +67,7 @@ func client(syn chan<- Packet, ack chan<- Packet, synack <-chan Packet) {
 	defer wg.Done()
 
 
-	x := 0
+	x := rand.Intn(10000) 
 
 	for {
 		syn <- Packet{SeqNum: x, AckNum: 0, Data: "SYN"} //Client -> server
