@@ -1,7 +1,6 @@
 // here i just a fyi, in lamport clock whenever a event occur we increment the time by 1
 
-
-package grpc
+package main
 
 import (
 	"sync"
