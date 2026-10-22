@@ -7,12 +7,11 @@
 package grpc
 
 import (
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
-
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -24,10 +23,11 @@ const (
 
 // Join request and response for client wishing to log on
 type JoinRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClientId      string                 `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	ClientId         string                 `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	LogicalTimestamp int64                  `protobuf:"varint,2,opt,name=logical_timestamp,json=logicalTimestamp,proto3" json:"logical_timestamp,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *JoinRequest) Reset() {
@@ -67,11 +67,19 @@ func (x *JoinRequest) GetClientId() string {
 	return ""
 }
 
+func (x *JoinRequest) GetLogicalTimestamp() int64 {
+	if x != nil {
+		return x.LogicalTimestamp
+	}
+	return 0
+}
+
 type JoinResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClientId      string                 `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	ClientId         string                 `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	LogicalTimestamp int64                  `protobuf:"varint,2,opt,name=logical_timestamp,json=logicalTimestamp,proto3" json:"logical_timestamp,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *JoinResponse) Reset() {
@@ -111,12 +119,20 @@ func (x *JoinResponse) GetClientId() string {
 	return ""
 }
 
+func (x *JoinResponse) GetLogicalTimestamp() int64 {
+	if x != nil {
+		return x.LogicalTimestamp
+	}
+	return 0
+}
+
 // Leave request and response for client wishing to leave
 type LeaveRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClientId      string                 `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	ClientId         string                 `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	LogicalTimestamp int64                  `protobuf:"varint,2,opt,name=logical_timestamp,json=logicalTimestamp,proto3" json:"logical_timestamp,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *LeaveRequest) Reset() {
@@ -156,10 +172,18 @@ func (x *LeaveRequest) GetClientId() string {
 	return ""
 }
 
+func (x *LeaveRequest) GetLogicalTimestamp() int64 {
+	if x != nil {
+		return x.LogicalTimestamp
+	}
+	return 0
+}
+
 type LeaveResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	LogicalTimestamp int64                  `protobuf:"varint,1,opt,name=logical_timestamp,json=logicalTimestamp,proto3" json:"logical_timestamp,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *LeaveResponse) Reset() {
@@ -192,12 +216,20 @@ func (*LeaveResponse) Descriptor() ([]byte, []int) {
 	return file_grpc_chat_proto_rawDescGZIP(), []int{3}
 }
 
+func (x *LeaveResponse) GetLogicalTimestamp() int64 {
+	if x != nil {
+		return x.LogicalTimestamp
+	}
+	return 0
+}
+
 // Subscribe Request to recieve broadcast messages
 type SubscribeRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClientId      string                 `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	ClientId         string                 `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	LogicalTimestamp int64                  `protobuf:"varint,2,opt,name=logical_timestamp,json=logicalTimestamp,proto3" json:"logical_timestamp,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *SubscribeRequest) Reset() {
@@ -235,6 +267,13 @@ func (x *SubscribeRequest) GetClientId() string {
 		return x.ClientId
 	}
 	return ""
+}
+
+func (x *SubscribeRequest) GetLogicalTimestamp() int64 {
+	if x != nil {
+		return x.LogicalTimestamp
+	}
+	return 0
 }
 
 // Message broadcast to all active clients
@@ -292,11 +331,12 @@ func (x *BroadcastMessage) GetLogicalTimestamp() int64 {
 
 // Publish request and response to send message
 type PublishRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClientId      string                 `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	Content       string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	ClientId         string                 `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	Content          string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
+	LogicalTimestamp int64                  `protobuf:"varint,3,opt,name=logical_timestamp,json=logicalTimestamp,proto3" json:"logical_timestamp,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *PublishRequest) Reset() {
@@ -343,10 +383,18 @@ func (x *PublishRequest) GetContent() string {
 	return ""
 }
 
+func (x *PublishRequest) GetLogicalTimestamp() int64 {
+	if x != nil {
+		return x.LogicalTimestamp
+	}
+	return 0
+}
+
 type PublishResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	LogicalTimestamp int64                  `protobuf:"varint,1,opt,name=logical_timestamp,json=logicalTimestamp,proto3" json:"logical_timestamp,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *PublishResponse) Reset() {
@@ -379,27 +427,41 @@ func (*PublishResponse) Descriptor() ([]byte, []int) {
 	return file_grpc_chat_proto_rawDescGZIP(), []int{7}
 }
 
+func (x *PublishResponse) GetLogicalTimestamp() int64 {
+	if x != nil {
+		return x.LogicalTimestamp
+	}
+	return 0
+}
+
 var File_grpc_chat_proto protoreflect.FileDescriptor
 
 const file_grpc_chat_proto_rawDesc = "" +
 	"\n" +
-	"\x0fgrpc/chat.proto\x12\x04chat\"*\n" +
+	"\x0fgrpc/chat.proto\x12\x04chat\"W\n" +
 	"\vJoinRequest\x12\x1b\n" +
-	"\tclient_id\x18\x01 \x01(\tR\bclientId\"+\n" +
+	"\tclient_id\x18\x01 \x01(\tR\bclientId\x12+\n" +
+	"\x11logical_timestamp\x18\x02 \x01(\x03R\x10logicalTimestamp\"X\n" +
 	"\fJoinResponse\x12\x1b\n" +
-	"\tclient_id\x18\x01 \x01(\tR\bclientId\"+\n" +
+	"\tclient_id\x18\x01 \x01(\tR\bclientId\x12+\n" +
+	"\x11logical_timestamp\x18\x02 \x01(\x03R\x10logicalTimestamp\"X\n" +
 	"\fLeaveRequest\x12\x1b\n" +
-	"\tclient_id\x18\x01 \x01(\tR\bclientId\"\x0f\n" +
-	"\rLeaveResponse\"/\n" +
+	"\tclient_id\x18\x01 \x01(\tR\bclientId\x12+\n" +
+	"\x11logical_timestamp\x18\x02 \x01(\x03R\x10logicalTimestamp\"<\n" +
+	"\rLeaveResponse\x12+\n" +
+	"\x11logical_timestamp\x18\x01 \x01(\x03R\x10logicalTimestamp\"\\\n" +
 	"\x10SubscribeRequest\x12\x1b\n" +
-	"\tclient_id\x18\x01 \x01(\tR\bclientId\"Y\n" +
+	"\tclient_id\x18\x01 \x01(\tR\bclientId\x12+\n" +
+	"\x11logical_timestamp\x18\x02 \x01(\x03R\x10logicalTimestamp\"Y\n" +
 	"\x10BroadcastMessage\x12\x18\n" +
 	"\acontent\x18\x01 \x01(\tR\acontent\x12+\n" +
-	"\x11logical_timestamp\x18\x02 \x01(\x03R\x10logicalTimestamp\"G\n" +
+	"\x11logical_timestamp\x18\x02 \x01(\x03R\x10logicalTimestamp\"t\n" +
 	"\x0ePublishRequest\x12\x1b\n" +
 	"\tclient_id\x18\x01 \x01(\tR\bclientId\x12\x18\n" +
-	"\acontent\x18\x02 \x01(\tR\acontent\"\x11\n" +
-	"\x0fPublishResponse2\xe5\x01\n" +
+	"\acontent\x18\x02 \x01(\tR\acontent\x12+\n" +
+	"\x11logical_timestamp\x18\x03 \x01(\x03R\x10logicalTimestamp\">\n" +
+	"\x0fPublishResponse\x12+\n" +
+	"\x11logical_timestamp\x18\x01 \x01(\x03R\x10logicalTimestamp2\xe5\x01\n" +
 	"\vChatService\x12-\n" +
 	"\x04Join\x12\x11.chat.JoinRequest\x1a\x12.chat.JoinResponse\x120\n" +
 	"\x05Leave\x12\x12.chat.LeaveRequest\x1a\x13.chat.LeaveResponse\x12=\n" +
