@@ -29,5 +29,6 @@ func (c *Lamport) Receive(receivedTime int64) int64{
 	if receivedTime > c.time {
 		c.time = receivedTime
 	}
+	c.time++
 	return c.time
 }

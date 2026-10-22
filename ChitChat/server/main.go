@@ -12,6 +12,8 @@ import (
 	"google.golang.org/grpc"
 )
 
+var clock Lamport
+
 func main() {
 	listener, err := net.Listen("tcp", ":50051")
 
@@ -31,7 +33,7 @@ func main() {
 	log.Println("Chat server started on port 50051")
 
 	if err := grpcServer.Serve(listener); err != nil {
-		log.Fatalf("Failed to serve:", err)
+		log.Fatalf("Failed to serve: %v", err)
 	}
 }
 
@@ -52,17 +54,19 @@ func (s *chatServer) Join(
 ) (*pb.JoinResponse, error) {
 
 	clientID := req.GetClientId() //get the clients ID from the request and save it
+	clock.Receive(req.GetLogicalTimestamp()) //update our logical clock with the clients timestamp
 
 	s.mu.Lock() //protect data from concurrent changes
 
 	s.clients[clientID] = true //register client as active
-	s.logicalClock++
-
-	s.mu.Unlock() //allow other goroutines to interact, now that we're done
-
-	log.Println(clientID, " joined the chatroom!")
+	s.mu.Unlock() 
+	
+	t := clock.Send()
+	
+	log.Println(clientID, " joined the chatroom!", "logical time ", t)
 
 	return &pb.JoinResponse{ //Send a response back to client
 		ClientId: clientID,
+		LogicalTimestamp: t,
 	}, nil
 }

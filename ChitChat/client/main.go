@@ -9,6 +9,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+var clock Lamport
+
 func main() {
 	conn, err := grpc.NewClient(
 		"localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -24,11 +26,12 @@ func main() {
 
 	response, err := client.Join(
 		context.Background(),
-		&pb.JoinRequest{ClientId: "ClientA"},
+		&pb.JoinRequest{ClientId: "ClientA", LogicalTimestamp: clock.Send()},
 	)
 
 	if err != nil {
 		log.Fatal("Could not join chat: ", err)
 	}
-	log.Println("Joined chatroom as", response.GetClientId())
+	t := clock.Receive(response.GetLogicalTimestamp())
+	log.Println("Joined chatroom as", response.GetClientId(), "with logical timestamp", t)
 }
