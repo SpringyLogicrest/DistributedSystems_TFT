@@ -1,0 +1,3 @@
+2026/10/23 22:49:26 component=Client event=subscribed client_id=ClientC
+2026/10/23 22:49:26 component=Client event=message_received client_id=ClientC message_time=10 local_time=12 content="Participant ClientC joined Chit Chat at logical time 10"
+2026/10/23 22:49:26 component=Client event=joined client_id=ClientC logical_time=11
