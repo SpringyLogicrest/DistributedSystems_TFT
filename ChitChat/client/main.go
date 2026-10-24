@@ -2,6 +2,7 @@ package main
 
 import (
 	pb "ChitChat/grpc"
+	"bufio"
 	"context"
 	"fmt"
 	"log"
@@ -130,6 +131,7 @@ func main() {
 		}
 	}()
 
+	//Client joins chatroom
 	response, err := client.Join(
 		ctx,
 		&pb.JoinRequest{
@@ -139,7 +141,7 @@ func main() {
 	)
 
 	if err != nil {
-		log.Fatal("Could not join chat: ", err)
+		log.Fatal("Could not join ChitChat: ", err)
 	}
 	t := clock.Receive(response.GetLogicalTimestamp())
 	eventLog.Printf(
@@ -153,5 +155,61 @@ func main() {
 	// Keep the client connected until Ctrl+C is pressed or the subscription stream closes.
 	log.Println("Listening for messages. Press Ctrl+C to exit.")
 
+	//Client will be able to send messages through the terminal
+	go func() {
+		scanner := bufio.NewScanner(os.Stdin) //allows for clients to write chat messages
+
+		for scanner.Scan() {
+			message := scanner.Text()
+
+			publishResponse, err := client.Publish(
+				ctx,
+				&pb.PublishRequest{
+					ClientId:         clientID,
+					Content:          message,
+					LogicalTimestamp: clock.Send(),
+				},
+			)
+
+			if err != nil {
+				log.Println("Coould not publish message:", err)
+			} else {
+				t := clock.Receive(publishResponse.GetLogicalTimestamp())
+				log.Printf("message sent at logical time: %d", t)
+
+				// Log the event
+				eventLog.Printf(
+					"component=Client event=publishing client_id=%s logical_time=%d",
+					clientID,
+					t,
+				)
+			}
+		}
+	}()
+
 	<-ctx.Done()
+
+	//Tell server client is leaving
+	leaveResponse, err := client.Leave(
+		context.Background(), &pb.LeaveRequest{
+			ClientId:         clientID,
+			LogicalTimestamp: clock.Send(),
+		},
+	)
+	if err != nil {
+		log.Fatal("Could not leave ChitChat: ", err)
+	} else {
+		fmt.Println("You have left ChitChat. See you another time!")
+	}
+
+	//Update Lamport clock
+	t = clock.Receive(leaveResponse.GetLogicalTimestamp())
+
+	// Log the leave event
+	eventLog.Printf(
+		"component=Client event=left client_id=%s logical_time=%d",
+		clientID,
+		t,
+	)
+
 }

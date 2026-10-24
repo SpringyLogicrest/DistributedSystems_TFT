@@ -9,6 +9,7 @@ import (
 	"log"
 	"net"
 	"sync"
+	"unicode/utf8"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -70,7 +71,7 @@ func (s *chatServer) Join(
 	// Create a broadcast message to notify all subscribed clients that a new participant has joined the chatroom.
 	message := &pb.BroadcastMessage{
 		Content: fmt.Sprintf(
-			"Participant %s joined Chit Chat at logical time %d",
+			"Participant %s joined ChitChat at logical time %d",
 			clientID, t,
 		),
 		LogicalTimestamp: t,
@@ -91,6 +92,102 @@ func (s *chatServer) Join(
 		ClientId:         clientID,
 		LogicalTimestamp: t,
 	}, nil
+}
+
+// Our Leave() method, which'll allow clients to leave the chatroom.
+func (s *chatServer) Leave(
+	ctx context.Context, //information about GRPC call
+	req *pb.LeaveRequest, //our LeaveRequest from chat.proto
+) (*pb.LeaveResponse, error) {
+
+	clientID := req.GetClientId()            //get the clients ID from the request and save it
+	clock.Receive(req.GetLogicalTimestamp()) //update our logical clock with the clients timestamp
+
+	s.mu.Lock() //protect data from concurrent changes
+
+	t := clock.Send()
+
+	//create broadcast message and let all active client know that the user has left the chatroom
+	message := &pb.BroadcastMessage{
+		Content: fmt.Sprintf(
+			"Participant %s left ChitChat at logical time %d", clientID, t,
+		), LogicalTimestamp: t,
+	}
+
+	//unlock mutex before broadcasting
+	s.mu.Unlock()
+
+	//Client no longer subscribes to recieve messages
+	s.removeSubscriber(clientID)
+
+	//broadcast message to everyone
+	s.broadcast(message)
+
+	// Log the join event with the client ID and logical timestamp.
+	log.Printf(
+		"component=Server event=leave client_id=%s logical_time=%d",
+		clientID, t,
+	)
+
+	return &pb.LeaveResponse{LogicalTimestamp: t}, nil //return a Leave response
+}
+
+// publish method allows clients to send chatmessages
+func (s *chatServer) Publish(
+	ctx context.Context,
+	req *pb.PublishRequest,
+) (*pb.PublishResponse, error) {
+
+	clientID := req.GetClientId() //get the clients ID from the request and save it
+	content := req.GetContent()   //get message from client
+
+	// Check that the message is valid UTF-8
+	if !utf8.ValidString(content) {
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"message must be valid UTF-8",
+		)
+	}
+
+	// Check message length doesnt exceed 128 characters
+	if utf8.RuneCountInString(content) > 128 {
+		return nil, status.Error(
+			codes.InvalidArgument,
+			"message exceeds 128 characters",
+		)
+	}
+
+	clock.Receive(req.GetLogicalTimestamp()) //update our logical clock with the clients timestamp
+	s.mu.Lock()                              //protect data from concurrent changes
+
+	if !s.clients[clientID] {
+		s.mu.Unlock()
+		return nil, status.Error(
+			codes.PermissionDenied,
+			"client is not active",
+		)
+	}
+
+	t := clock.Send()
+
+	//create broadcast message
+	message := &pb.BroadcastMessage{
+		Content:          fmt.Sprintf("%s: %s", clientID, content),
+		LogicalTimestamp: t,
+	}
+
+	s.mu.Unlock()
+
+	//broadcast message to everyone
+	s.broadcast(message)
+
+	// Log the publish event with the client ID and logical timestamp.
+	log.Printf(
+		"component=Server event=publish client_id=%s logical_time=%d",
+		clientID, t,
+	)
+
+	return &pb.PublishResponse{LogicalTimestamp: t}, nil
 }
 
 // Our Subscribe() method, which'll allow clients to continuously receive broadcast messages from the server using gRPC server-side streaming.

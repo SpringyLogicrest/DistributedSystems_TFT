@@ -2,3 +2,14 @@
 2026/10/23 22:49:21 component=Client event=message_received client_id=ClientB message_time=7 local_time=8 content="Participant ClientB joined Chit Chat at logical time 7"
 2026/10/23 22:49:21 component=Client event=joined client_id=ClientB logical_time=9
 2026/10/23 22:49:26 component=Client event=message_received client_id=ClientB message_time=10 local_time=11 content="Participant ClientC joined Chit Chat at logical time 10"
+2026/10/24 13:38:19 component=Client event=subscribed client_id=ClientB
+2026/10/24 13:38:19 component=Client event=joined client_id=ClientB logical_time=8
+2026/10/24 13:38:19 component=Client event=message_received client_id=ClientB message_time=7 local_time=9 content="Participant ClientB joined ChitChat at logical time 7"
+2026/10/24 13:40:13 component=Client event=left client_id=ClientB logical_time=11
+2026/10/24 15:18:52 component=Client event=subscribed client_id=ClientB
+2026/10/24 15:18:52 component=Client event=joined client_id=ClientB logical_time=8
+2026/10/24 15:18:52 component=Client event=message_received client_id=ClientB message_time=7 local_time=9 content="Participant ClientB joined ChitChat at logical time 7"
+2026/10/24 15:19:14 component=Client event=message_received client_id=ClientB message_time=10 local_time=11 content="Participant ClientC joined ChitChat at logical time 10"
+2026/10/24 15:19:29 component=Client event=message_received client_id=ClientB message_time=14 local_time=15 content="hello guys"
+2026/10/24 15:19:42 component=Client event=message_received client_id=ClientB message_time=18 local_time=19 content="hey, silly"
+2026/10/24 15:20:22 component=Client event=message_received client_id=ClientB message_time=23 local_time=24 content="Participant ClientC left ChitChat at logical time 23"
