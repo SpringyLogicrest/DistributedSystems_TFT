@@ -1,0 +1,8 @@
+2026/10/25 14:24:52 component=Client event=subscribed client_id=Bob
+2026/10/25 14:24:52 component=Client event=joined client_id=Bob logical_time=11
+2026/10/25 14:24:52 component=Client event=message_received client_id=Bob message_time=10 local_time=12 content="Participant Bob joined ChitChat at logical time 10"
+2026/10/25 14:25:06 component=Client event=message_received client_id=Bob message_time=14 local_time=15 content="Leah: hello everyone!"
+2026/10/25 14:25:13 component=Client event=message_received client_id=Bob message_time=18 local_time=19 content="Peter: hi!"
+2026/10/25 14:25:36 component=Client event=message_received client_id=Bob message_time=22 local_time=23 content="Bob: hello! Sorry, I'll be leaving now"
+2026/10/25 14:25:36 component=Client event=publishing client_id=Bob logical_time=24
+2026/10/25 14:25:40 component=Client event=left client_id=Bob logical_time=28
