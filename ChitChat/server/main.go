@@ -6,9 +6,13 @@ import (
 	pb "ChitChat/grpc"
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net"
+	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 	"unicode/utf8"
 
 	"google.golang.org/grpc"
@@ -20,6 +24,25 @@ import (
 var clock Lamport
 
 func main() {
+	// Create a folder for our logs if it doesn't exists.
+	if err := os.MkdirAll("logs", 0755); err != nil {
+		log.Fatal(err)
+	}
+
+	// Create the server log file.
+	logFile, err := os.OpenFile(
+		"logs/server.log",
+		os.O_CREATE|os.O_WRONLY|os.O_APPEND,
+		0644,
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer logFile.Close()
+
+	// Log to both the terminal and the file.
+	log.SetOutput(io.MultiWriter(os.Stdout, logFile))
+
 	listener, err := net.Listen("tcp", ":50051")
 
 	if err != nil {
@@ -35,11 +58,28 @@ func main() {
 
 	pb.RegisterChatServiceServer(grpcServer, chat)
 
-	log.Println("Chat server started on port 50051")
+	log.Println("component=Server event=startup port=50051")
 
-	if err := grpcServer.Serve(listener); err != nil {
-		log.Fatalf("Failed to serve: %v", err)
-	}
+	// Run the server in a goroutine.
+	go func() {
+		if err := grpcServer.Serve(listener); err != nil {
+			log.Printf("component=Server event=serve_error error=%v", err)
+		}
+	}()
+
+	// Listen for Ctrl+C or a termination signal.
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
+	defer signal.Stop(signals)
+
+	<-signals
+
+	log.Println("component=Server event=shutdown_requested")
+
+	// Stop gRPC and close active connections.
+	grpcServer.Stop()
+
+	log.Println("component=Server event=shutdown")
 }
 
 // Defines our server
@@ -59,10 +99,27 @@ func (s *chatServer) Join(
 	//we return either an answer to our client or a potential error
 ) (*pb.JoinResponse, error) {
 
-	clientID := req.GetClientId()            //get the clients ID from the request and save it
+	clientID := req.GetClientId() //get the clients ID from the request and save it
+	s.mu.Lock()                   //protect data from concurrent changes
+
+	// Check if the client has already joined the chatroom.
+	if s.clients[clientID] {
+		s.mu.Unlock()
+		return nil, status.Error(
+			codes.AlreadyExists,
+			"client has already joined",
+		)
+	}
+
 	clock.Receive(req.GetLogicalTimestamp()) //update our logical clock with the clients timestamp
 
-	s.mu.Lock() //protect data from concurrent changes
+	if !s.canBroadcastLocked() {
+		s.mu.Unlock()
+		return nil, status.Error(
+			codes.ResourceExhausted,
+			"a client's message queue is full",
+		)
+	}
 
 	s.clients[clientID] = true //register client as active
 
@@ -71,16 +128,15 @@ func (s *chatServer) Join(
 	// Create a broadcast message to notify all subscribed clients that a new participant has joined the chatroom.
 	message := &pb.BroadcastMessage{
 		Content: fmt.Sprintf(
-			"Participant %s joined ChitChat at logical time %d",
+			"Participant %s joined Chit Chat at logical time %d",
 			clientID, t,
 		),
 		LogicalTimestamp: t,
 	}
 
 	// Unlock the mutex before broadcasting to avoid locking the server twice when calling broadcast().
+	s.broadcastLocked(message)
 	s.mu.Unlock()
-
-	s.broadcast(message)
 
 	// Log the join event with the client ID and logical timestamp.
 	log.Printf(
@@ -100,28 +156,36 @@ func (s *chatServer) Leave(
 	req *pb.LeaveRequest, //our LeaveRequest from chat.proto
 ) (*pb.LeaveResponse, error) {
 
-	clientID := req.GetClientId()            //get the clients ID from the request and save it
-	clock.Receive(req.GetLogicalTimestamp()) //update our logical clock with the clients timestamp
+	clientID := req.GetClientId() //get the clients ID from the request and save it
+	s.mu.Lock()                   //protect data from concurrent changes
 
-	s.mu.Lock() //protect data from concurrent changes
+	// Check whether the client is actually in the chatroom.
+	if !s.clients[clientID] {
+		s.mu.Unlock()
+		return nil, status.Error(
+			codes.NotFound,
+			"client is not active",
+		)
+	}
+
+	clock.Receive(req.GetLogicalTimestamp()) //update our logical clock with the clients timestamp
 
 	t := clock.Send()
 
 	//create broadcast message and let all active client know that the user has left the chatroom
 	message := &pb.BroadcastMessage{
 		Content: fmt.Sprintf(
-			"Participant %s left ChitChat at logical time %d", clientID, t,
+			"Participant %s left Chit Chat at logical time %d", clientID, t,
 		), LogicalTimestamp: t,
 	}
 
-	//unlock mutex before broadcasting
+	// Remove the leaving client before notifying everyone else.
+	delete(s.clients, clientID)
+	delete(s.subscribers, clientID)
+
+	// Broadcast while still holding the lock.
+	s.broadcastLocked(message)
 	s.mu.Unlock()
-
-	//Client no longer subscribes to recieve messages
-	s.removeSubscriber(clientID)
-
-	//broadcast message to everyone
-	s.broadcast(message)
 
 	// Log the join event with the client ID and logical timestamp.
 	log.Printf(
@@ -157,8 +221,16 @@ func (s *chatServer) Publish(
 		)
 	}
 
-	clock.Receive(req.GetLogicalTimestamp()) //update our logical clock with the clients timestamp
 	s.mu.Lock()                              //protect data from concurrent changes
+	clock.Receive(req.GetLogicalTimestamp()) //update our logical clock with the clients timestamp
+
+	if !s.canBroadcastLocked() {
+		s.mu.Unlock()
+		return nil, status.Error(
+			codes.ResourceExhausted,
+			"a client's message queue is full",
+		)
+	}
 
 	if !s.clients[clientID] {
 		s.mu.Unlock()
@@ -176,10 +248,9 @@ func (s *chatServer) Publish(
 		LogicalTimestamp: t,
 	}
 
-	s.mu.Unlock()
-
 	//broadcast message to everyone
-	s.broadcast(message)
+	s.broadcastLocked(message)
+	s.mu.Unlock()
 
 	// Log the publish event with the client ID and logical timestamp.
 	log.Printf(
@@ -199,13 +270,11 @@ func (s *chatServer) Subscribe(
 
 	clientID := req.GetClientId()
 
-	// Update Lamport clock when receiving the request.
-	clock.Receive(req.GetLogicalTimestamp())
-
 	// Every subscriber gets its own buffered channel.
 	messageChannel := make(chan *pb.BroadcastMessage, 32)
 
 	s.mu.Lock()
+	clock.Receive(req.GetLogicalTimestamp()) // Update Lamport clock when receiving the request.
 
 	// Prevent multiple subscriptions using the same ID.
 	if _, exists := s.subscribers[clientID]; exists {
@@ -260,8 +329,30 @@ func (s *chatServer) removeSubscriber(clientID string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	// The client may already have left through Leave().
+	if _, exists := s.subscribers[clientID]; !exists {
+		return
+	}
+
+	wasActive := s.clients[clientID]
+
 	delete(s.subscribers, clientID)
 	delete(s.clients, clientID)
+
+	// Notify other participants if an active client disconnects.
+	if wasActive {
+		t := clock.Send()
+
+		message := &pb.BroadcastMessage{
+			Content: fmt.Sprintf(
+				"Participant %s left Chit Chat at logical time %d",
+				clientID, t,
+			),
+			LogicalTimestamp: t,
+		}
+
+		s.broadcastLocked(message)
+	}
 
 	log.Printf(
 		"component=Server event=unsubscribe client_id=%s",
@@ -270,13 +361,13 @@ func (s *chatServer) removeSubscriber(clientID string) {
 }
 
 // Our broadcast() method, which'll go through all the subscribed clients and queues the message for delivery.
-func (s *chatServer) broadcast(
+func (s *chatServer) broadcastLocked( //
 	msg *pb.BroadcastMessage,
 ) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	for clientID, messageChannel := range s.subscribers {
+		if !s.clients[clientID] {
+			continue
+		}
 
 		// Don't allow one full channel to block everyone.
 		select {
@@ -295,4 +386,15 @@ func (s *chatServer) broadcast(
 		msg.GetLogicalTimestamp(),
 		msg.GetContent(),
 	)
+}
+
+// Check whether every active subscriber has queue space.
+// The caller must hold s.mu.
+func (s *chatServer) canBroadcastLocked() bool {
+	for id, ch := range s.subscribers {
+		if s.clients[id] && len(ch) == cap(ch) {
+			return false
+		}
+	}
+	return true
 }

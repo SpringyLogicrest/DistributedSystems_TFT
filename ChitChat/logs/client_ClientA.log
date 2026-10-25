@@ -1,22 +1,25 @@
-2026/10/23 22:49:11 component=Client event=subscribed client_id=ClientA
-2026/10/23 22:49:11 component=Client event=message_received client_id=ClientA message_time=4 local_time=5 content="Participant ClientA joined Chit Chat at logical time 4"
-2026/10/23 22:49:11 component=Client event=joined client_id=ClientA logical_time=6
-2026/10/23 22:49:21 component=Client event=message_received client_id=ClientA message_time=7 local_time=8 content="Participant ClientB joined Chit Chat at logical time 7"
-2026/10/23 22:49:26 component=Client event=message_received client_id=ClientA message_time=10 local_time=11 content="Participant ClientC joined Chit Chat at logical time 10"
-2026/10/24 11:04:10 component=Client event=subscribed client_id=ClientA
-2026/10/24 11:04:10 component=Client event=joined client_id=ClientA logical_time=5
-2026/10/24 11:04:10 component=Client event=message_received client_id=ClientA message_time=4 local_time=6 content="Participant ClientA joined Chit Chat at logical time 4"
-2026/10/24 13:37:48 component=Client event=subscribed client_id=ClientA
-2026/10/24 13:37:48 component=Client event=joined client_id=ClientA logical_time=5
-2026/10/24 13:37:48 component=Client event=message_received client_id=ClientA message_time=4 local_time=6 content="Participant ClientA joined ChitChat at logical time 4"
-2026/10/24 13:38:19 component=Client event=message_received client_id=ClientA message_time=7 local_time=8 content="Participant ClientB joined ChitChat at logical time 7"
-2026/10/24 13:40:13 component=Client event=message_received client_id=ClientA message_time=12 local_time=13 content="Participant ClientB left ChitChat at logical time 12"
-2026/10/24 15:18:31 component=Client event=subscribed client_id=ClientA
-2026/10/24 15:18:31 component=Client event=joined client_id=ClientA logical_time=5
-2026/10/24 15:18:31 component=Client event=message_received client_id=ClientA message_time=4 local_time=6 content="Participant ClientA joined ChitChat at logical time 4"
-2026/10/24 15:18:52 component=Client event=message_received client_id=ClientA message_time=7 local_time=8 content="Participant ClientB joined ChitChat at logical time 7"
-2026/10/24 15:19:14 component=Client event=message_received client_id=ClientA message_time=10 local_time=11 content="Participant ClientC joined ChitChat at logical time 10"
-2026/10/24 15:19:29 component=Client event=message_received client_id=ClientA message_time=14 local_time=16 content="hello guys"
-2026/10/24 15:19:29 component=Client event=publishing client_id=ClientA logical_time=15
-2026/10/24 15:19:42 component=Client event=message_received client_id=ClientA message_time=18 local_time=19 content="hey, silly"
-2026/10/24 15:20:22 component=Client event=message_received client_id=ClientA message_time=23 local_time=24 content="Participant ClientC left ChitChat at logical time 23"
+2026/10/25 14:08:44 component=Client event=subscribed client_id=ClientA
+2026/10/25 14:08:44 component=Client event=message_received client_id=ClientA message_time=4 local_time=5 content="Participant ClientA joined Chit Chat at logical time 4"
+2026/10/25 14:08:44 component=Client event=joined client_id=ClientA logical_time=6
+2026/10/25 14:08:53 component=Client event=message_received client_id=ClientA message_time=7 local_time=8 content="Participant ClientB joined Chit Chat at logical time 7"
+2026/10/25 14:08:58 component=Client event=message_received client_id=ClientA message_time=10 local_time=11 content="Participant ClientC joined Chit Chat at logical time 10"
+2026/10/25 14:10:12 component=Client event=message_received client_id=ClientA message_time=14 local_time=15 content="ClientA: Hello everyone!"
+2026/10/25 14:10:12 component=Client event=publishing client_id=ClientA logical_time=16
+2026/10/25 14:11:17 component=Client event=message_received client_id=ClientA message_time=18 local_time=19 content="ClientB: Greetings ClientA. It's a pleasure to make your acquaintance"
+2026/10/25 14:11:45 component=Client event=message_received client_id=ClientA message_time=22 local_time=23 content="ClientC: hi evry1!"
+2026/10/25 14:14:14 component=Client event=message_received client_id=ClientA message_time=27 local_time=28 content="ClientA: Oh shucks, my previous message was too long!"
+2026/10/25 14:14:14 component=Client event=publishing client_id=ClientA logical_time=29
+2026/10/25 14:14:45 component=Client event=message_received client_id=ClientA message_time=31 local_time=32 content="ClientC: O nose! Sounds pretty bad"
+2026/10/25 14:14:55 component=Client event=message_received client_id=ClientA message_time=35 local_time=36 content="ClientA: Nah, it was intentional"
+2026/10/25 14:14:55 component=Client event=publishing client_id=ClientA logical_time=37
+2026/10/25 14:15:18 component=Client event=message_received client_id=ClientA message_time=39 local_time=40 content="ClientC: Thank goddness, I waz worried 4 a sec"
+2026/10/25 14:15:44 component=Client event=message_received client_id=ClientA message_time=43 local_time=44 content="ClientB: ClientC, your grammar sucks, no offense"
+2026/10/25 14:15:58 component=Client event=message_received client_id=ClientA message_time=47 local_time=48 content="ClientC: Wut?"
+2026/10/25 14:16:08 component=Client event=message_received client_id=ClientA message_time=51 local_time=52 content="ClientB: Nevermind, I'm leaving"
+2026/10/25 14:16:11 component=Client event=message_received client_id=ClientA message_time=56 local_time=57 content="Participant ClientB left Chit Chat at logical time 56"
+2026/10/25 14:16:29 component=Client event=message_received client_id=ClientA message_time=60 local_time=61 content="ClientC: wuts their deal?"
+2026/10/25 14:16:41 component=Client event=message_received client_id=ClientA message_time=64 local_time=65 content="ClientA: No clue my friend"
+2026/10/25 14:16:41 component=Client event=publishing client_id=ClientA logical_time=66
+2026/10/25 14:16:57 component=Client event=message_received client_id=ClientA message_time=69 local_time=70 content="ClientA: Anyways, I should get going too, see you later!"
+2026/10/25 14:16:57 component=Client event=publishing client_id=ClientA logical_time=71
+2026/10/25 14:17:05 component=Client event=message_received client_id=ClientA message_time=73 local_time=74 content="ClientC: cya"

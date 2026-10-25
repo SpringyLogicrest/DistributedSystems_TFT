@@ -46,7 +46,7 @@ func main() {
 	eventLog := log.New(logFile, "", log.LstdFlags)
 
 	// Display a welcome message.
-	fmt.Printf("Welcome to ChitChat, %s!\n", clientID)
+	fmt.Printf("Welcome to Chit Chat, %s!\n", clientID)
 
 	// Create a context that can be cancelled with Ctrl+C.
 	ctx, stop := signal.NotifyContext(
@@ -67,9 +67,13 @@ func main() {
 
 	client := pb.NewChatServiceClient(conn)
 
+	// Keep Subscribe active while we send the Leave request.
+	streamCtx, cancelStream := context.WithCancel(context.Background())
+	defer cancelStream()
+
 	// Subscribe to broadcasts from the server.
 	stream, err := client.Subscribe(
-		ctx,
+		streamCtx,
 		&pb.SubscribeRequest{
 			ClientId:         clientID,
 			LogicalTimestamp: clock.Send(),
@@ -141,7 +145,7 @@ func main() {
 	)
 
 	if err != nil {
-		log.Fatal("Could not join ChitChat: ", err)
+		log.Fatal("Could not join Chit Chat: ", err)
 	}
 	t := clock.Receive(response.GetLogicalTimestamp())
 	eventLog.Printf(
@@ -150,7 +154,7 @@ func main() {
 		t,
 	)
 
-	fmt.Printf("You have joined ChitChat as %s!\n", response.GetClientId())
+	fmt.Printf("You have joined Chit Chat as %s!\n", response.GetClientId())
 
 	// Keep the client connected until Ctrl+C is pressed or the subscription stream closes.
 	log.Println("Listening for messages. Press Ctrl+C to exit.")
@@ -185,6 +189,19 @@ func main() {
 				)
 			}
 		}
+		// Check whether the scanner stopped because of an input error.
+		if err := scanner.Err(); err != nil {
+			eventLog.Printf(
+				"component=Client event=input_error client_id=%s error=%q",
+				clientID,
+				err,
+			)
+
+			fmt.Fprintf(os.Stderr, "Error reading input: %v\n", err)
+		}
+
+		// Stop the client if terminal input has ended.
+		stop()
 	}()
 
 	<-ctx.Done()
@@ -197,13 +214,22 @@ func main() {
 		},
 	)
 	if err != nil {
-		log.Fatal("Could not leave ChitChat: ", err)
+		log.Printf("Could not leave Chit Chat: %v", err)
 	} else {
-		fmt.Println("You have left ChitChat. See you another time!")
+		// Update the Lamport clock only after a successful Leave.
+		t = clock.Receive(leaveResponse.GetLogicalTimestamp())
+
+		eventLog.Printf(
+			"component=Client event=left client_id=%s logical_time=%d",
+			clientID,
+			t,
+		)
+
+		fmt.Println("You have left Chit Chat. See you another time!")
 	}
 
-	//Update Lamport clock
-	t = clock.Receive(leaveResponse.GetLogicalTimestamp())
+	// Close the subscription after attempting to leave.
+	cancelStream()
 
 	// Log the leave event
 	eventLog.Printf(

@@ -2,7 +2,7 @@ Welcome to our, The Fantastic Three's, ChitChat program! This README provides st
 
 HOW TO RUN
     STEP 1:
-        Once you have the project, open a new terminal that's inside the ChitChat folder. Let's call this "Terminal S".
+        Once you have the project, open a new terminal that's inside the ChitChat folder (not in DistributedSystems_TFT_, but ChitChat). Let's call this "Terminal S".
         To check that the project compiles, you can run the following command: 
             go build ./...
 
@@ -36,13 +36,21 @@ HOW TO RUN
             [L:7] Participant ClientB joined Chit Chat at logical time 7
             [L:10] Participant ClientC joined Chit Chat at logical time 10
 
-    STEP 5:
-        To stop a client, press Ctrl+C in its terminal. This works on both terminals for the server and the clients.
-        It should be noted that as for now, the Leave functionality has not been fully implemented yet. Stopping a client currently disconnects it without sending the required leave notification.
+MESSAGING
+        Once a client has joined ChitChat, they can send messages directly from their terminal.
+        Simply write whatever you want to say from a client terminal. Try for example:
+            Hello everyone!
+        The client sends the message to the server through the Publish RPC. The server then broadcasts it to connected participants with a Lamport logical timestamp.
+        The server validates that messages are UTF-8 encoded and contain no more than 128 characters. Afterwards, all connected clients, including the sender, should receive the broadcast.
+
+LEAVING
+    To stop a client, press Ctrl+C in its terminal. This makes the server broadcast a departure notification to the remaining participants.
+    For example:
+        [L:23] Participant ClientC left Chit Chat at logical time 23
+
+STOPPING THE SERVER
+    Once all clients have finished, return to the server terminal and press Ctrl+C to stop the server.
 
 LOGGING
     ChitChat uses Go's standard log library to record technical events. These logs can be found under the folder "logs".
     These logs contain subscription, join, and message-reception events, including logical timestamps. In addition, the client terminal displays more readable chat notifications instead of technical event logs, while the server currently writes its logs to the server terminal, so those should be saved when collecting evidence for the assignment report.
-
-These are the basics steps we have for starting the server and connecting a client. With that, below will be the different commands you can do as a client:
-    TO BE ADDED
