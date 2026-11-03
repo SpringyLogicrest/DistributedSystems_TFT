@@ -1,0 +1,18 @@
+//defines grpc messages and service
+
+syntax = "proto3";
+package mutex;
+option go_package = "ricart-agrawala/proto";
+
+service MutexService{
+    rpc RequestAccess(Request) returns (Reply);
+}
+
+message Request{
+    int64 node_id = 1;
+    int64 timestamp = 2;
+}
+
+message Reply{
+    bool granted = 1;
+}
