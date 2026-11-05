@@ -8,6 +8,8 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
+	
 
 	pb "ricart-agrawala/proto"
 
@@ -32,8 +34,16 @@ func main() {
 		log.Fatalf("Unknown node ID: %d", *id)
 	}
 
+	// this is to create a new map of peers excluding the current node
+	others := make(map[int64]string)
+	for peerID, peerAddress := range peers {
+		if peerID != *id {
+			others[peerID] = peerAddress
+		}
+	}
 	node := &Node{
 		ID: *id,
+		Peers: others,
 	}
 
 	// Start listening for connections.
@@ -78,23 +88,10 @@ func main() {
 
 		switch command {
 		case "probe":
-			// Send a test request to all other nodes.
-			for peerID, peerAddress := range peers {
-				if peerID == node.ID {
-					continue
-				}
-
-				err := SendRequest(
-					node,
-					peerID,
-					peerAddress,
-					node.RequestTS,
-				)
-
-				if err != nil {
-					log.Printf("Error: %v", err)
-				}
-			}
+			RequestCriticalSectionAccess(node)
+			time.Sleep(10 * time.Second) // this is the time inside the cs
+			ExitCriticalSection(node)
+			
 
 		case "quit":
 			// Stop the server and exit.
