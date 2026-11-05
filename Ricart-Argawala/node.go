@@ -12,6 +12,9 @@ type Node struct {
 	Requesting bool
 	InCS       bool
 
+	DeferredReplies []int64
+	RepliesReceived map[int64]bool
+
 	Mu sync.Mutex
 }
 
