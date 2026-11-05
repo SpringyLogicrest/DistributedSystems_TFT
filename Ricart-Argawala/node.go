@@ -13,6 +13,8 @@ type Node struct {
 	InCS       bool
 
 	Mu sync.Mutex
+
+	Deferred []chan struct{}
 }
 
 // Increases the Lamport clock before sending a message.
@@ -35,4 +37,17 @@ func (n *Node) ReceiveTimestamp(timestamp int64) int64 {
 
 	n.clock++
 	return n.clock
+}
+
+// Function to compare requests
+func HasPriority(
+	myTimestamp int64,
+	myID int64,
+	otherTimestamp int64,
+	otherID int64,
+) bool {
+	if myTimestamp != otherTimestamp {
+		return myTimestamp < otherTimestamp
+	}
+	return myID < otherID
 }
