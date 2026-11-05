@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 
 	pb "ricart-agrawala/proto"
 
@@ -13,10 +12,12 @@ import (
 )
 
 // Sends a test request to another node.
-func SendProbe(
+func SendRequest(
 	node *Node,
 	peerID int64,
 	peerAddress string,
+	timestamp int64,
+
 ) error {
 
 	// Connect to the other node.
@@ -34,13 +35,7 @@ func SendProbe(
 
 	client := pb.NewMutexServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(
-		context.Background(),
-		5*time.Second,
-	)
-	defer cancel()
-
-	timestamp := node.NextTimestamp()
+	ctx := context.Background()
 
 	log.Printf(
 		"Node %d: sending REQUEST to Node %d (timestamp=%d)",

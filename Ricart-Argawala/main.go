@@ -84,10 +84,11 @@ func main() {
 					continue
 				}
 
-				err := SendProbe(
+				err := SendRequest(
 					node,
 					peerID,
 					peerAddress,
+					node.RequestTS,
 				)
 
 				if err != nil {
