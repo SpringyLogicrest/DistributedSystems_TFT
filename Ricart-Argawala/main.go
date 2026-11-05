@@ -1,0 +1,113 @@
+package main
+
+import (
+	"bufio"
+	"flag"
+	"fmt"
+	"log"
+	"net"
+	"os"
+	"strings"
+
+	pb "ricart-agrawala/proto"
+
+	"google.golang.org/grpc"
+)
+
+// Hardcoded addresses for the three nodes.
+var peers = map[int64]string{
+	1: "localhost:50051",
+	2: "localhost:50052",
+	3: "localhost:50053",
+}
+
+// Starts the node and handles user commands.
+func main() {
+	id := flag.Int64("id", 1, "Node ID")
+	flag.Parse()
+
+	// Find the address for this node.
+	address, exists := peers[*id]
+	if !exists {
+		log.Fatalf("Unknown node ID: %d", *id)
+	}
+
+	node := &Node{
+		ID: *id,
+	}
+
+	// Start listening for connections.
+	listener, err := net.Listen("tcp", address)
+	if err != nil {
+		log.Fatalf("Failed to listen: %v", err)
+	}
+
+	// Create and register the gRPC server.
+	grpcServer := grpc.NewServer()
+	pb.RegisterMutexServiceServer(
+		grpcServer,
+		NewMutexServer(node),
+	)
+
+	// Run the server in the background.
+	go func() {
+		log.Printf(
+			"Node %d: listening on %s",
+			node.ID,
+			address,
+		)
+
+		if err := grpcServer.Serve(listener); err != nil {
+			log.Printf("gRPC server stopped: %v", err)
+		}
+	}()
+
+	fmt.Println("Commands: probe, quit")
+
+	scanner := bufio.NewScanner(os.Stdin)
+
+	// Read commands from the terminal.
+	for {
+		fmt.Print("> ")
+
+		if !scanner.Scan() {
+			break
+		}
+
+		command := strings.TrimSpace(scanner.Text())
+
+		switch command {
+		case "probe":
+			// Send a test request to all other nodes.
+			for peerID, peerAddress := range peers {
+				if peerID == node.ID {
+					continue
+				}
+
+				err := SendProbe(
+					node,
+					peerID,
+					peerAddress,
+				)
+
+				if err != nil {
+					log.Printf("Error: %v", err)
+				}
+			}
+
+		case "quit":
+			// Stop the server and exit.
+			grpcServer.GracefulStop()
+			return
+
+		default:
+			fmt.Println("Unknown command. Use: probe, quit")
+		}
+	}
+	// Check if an error occurred while reading input.
+	if err := scanner.Err(); err != nil {
+		log.Printf("Error reading input: %v", err)
+	}
+
+	grpcServer.GracefulStop()
+}

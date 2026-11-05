@@ -1,4 +1,4 @@
-package ricartargawala
+package main
 
 //keeps track of Lamport clock, node ID and critical section
 
@@ -13,4 +13,26 @@ type Node struct {
 	InCS       bool
 
 	Mu sync.Mutex
+}
+
+// Increases the Lamport clock before sending a message.
+func (n *Node) NextTimestamp() int64 {
+	n.Mu.Lock()
+	defer n.Mu.Unlock()
+
+	n.clock++
+	return n.clock
+}
+
+// Updates the Lamport clock when receiving a message.
+func (n *Node) ReceiveTimestamp(timestamp int64) int64 {
+	n.Mu.Lock()
+	defer n.Mu.Unlock()
+
+	if timestamp > n.clock {
+		n.clock = timestamp
+	}
+
+	n.clock++
+	return n.clock
 }
