@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	pb "ricart-agrawala/proto"
 
@@ -35,7 +36,12 @@ func SendRequest(
 
 	client := pb.NewMutexServiceClient(conn)
 
-	ctx := context.Background()
+	// Limit how long we wait for a reply (so a deadlock doesn't happen).
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		60*time.Second,
+	)
+	defer cancel()
 
 	log.Printf(
 		"Node %d: sending REQUEST to Node %d (timestamp=%d)",
@@ -59,6 +65,11 @@ func SendRequest(
 			peerID,
 			err,
 		)
+	}
+
+	// Makes sure the other node granted permission.
+	if !reply.Granted {
+		return fmt.Errorf("Node %d denied access", peerID)
 	}
 
 	// Advance the local clock after receiving the reply. Currently, the reply does not contain a timestamp.

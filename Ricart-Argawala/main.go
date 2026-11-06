@@ -9,7 +9,6 @@ import (
 	"os"
 	"strings"
 	"time"
-	
 
 	pb "ricart-agrawala/proto"
 
@@ -42,7 +41,7 @@ func main() {
 		}
 	}
 	node := &Node{
-		ID: *id,
+		ID:    *id,
 		Peers: others,
 	}
 
@@ -88,10 +87,13 @@ func main() {
 
 		switch command {
 		case "probe":
-			RequestCriticalSectionAccess(node)
+			// Only enter the CS if all requests succeeded.
+			if err := RequestCriticalSectionAccess(node); err != nil {
+				log.Printf("Could not enter critical section: %v", err)
+				continue
+			}
 			time.Sleep(10 * time.Second) // this is the time inside the cs
 			ExitCriticalSection(node)
-			
 
 		case "quit":
 			// Stop the server and exit.

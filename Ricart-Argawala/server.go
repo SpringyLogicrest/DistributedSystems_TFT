@@ -71,6 +71,21 @@ func (s *MutexServer) RequestAccess(
 		case <-waitCh:
 			//Release function has signaled permission
 		case <-ctx.Done():
+			// Remove the request if the client stops waiting.
+			s.node.Mu.Lock()
+
+			for i, ch := range s.node.Deferred {
+				if ch == waitCh {
+					s.node.Deferred = append(
+						s.node.Deferred[:i],
+						s.node.Deferred[i+1:]...,
+					)
+					break
+				}
+			}
+
+			s.node.Mu.Unlock()
+
 			return nil, ctx.Err()
 		}
 	}
