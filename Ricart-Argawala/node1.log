@@ -1,0 +1,12 @@
+Commands: probe, quit
+> 2026/11/05 18:54:36 Node 1: listening on localhost:50051
+Node 1: requesting access to critical section (timestamp=1)
+2026/11/05 18:55:02 Node 1: sending REQUEST to Node 3 (timestamp=1)
+2026/11/05 18:55:02 Node 1: sending REQUEST to Node 2 (timestamp=1)
+2026/11/05 18:55:02 Node 1: received REPLY from Node 2 (granted=true)
+2026/11/05 18:55:02 Node 1: received REPLY from Node 3 (granted=true)
+Node 1: entering critical section
+2026/11/05 18:55:06 Node 1: received REQUEST from Node 2 (timestamp=3, clock=4)
+2026/11/05 18:55:06 Node 1: deffering reply to Node 2
+Node 1: is going to exit the critical section
+> 2026/11/05 18:55:12 Node 1: sending REPLY to Node 2

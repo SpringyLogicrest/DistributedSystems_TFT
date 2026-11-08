@@ -1,0 +1,6 @@
+Commands: probe, quit
+> 2026/11/05 18:54:57 Node 3: listening on localhost:50053
+2026/11/05 18:55:02 Node 3: received REQUEST from Node 1 (timestamp=1, clock=2)
+2026/11/05 18:55:02 Node 3: sending REPLY to Node 1
+2026/11/05 18:55:06 Node 3: received REQUEST from Node 2 (timestamp=3, clock=4)
+2026/11/05 18:55:06 Node 3: sending REPLY to Node 2
