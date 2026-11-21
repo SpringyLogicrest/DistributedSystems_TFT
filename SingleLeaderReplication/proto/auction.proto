@@ -16,10 +16,31 @@ message BidResponse{
   string ack = 1;
 }
 
-message ResultRequest{}
+message ResultRequest{
+  message ResultResponse{
+  int64 highest_bid    = 1;
+  int64 highest_bidder = 2;
+  bool  auction_ended  = 3;
+}
+}
 
 message ResultResponse{
   int64 highest_bid    = 1;
   int64 highest_bidder = 2;
   bool  auction_ended  = 3;
 }
+
+
+service ReplicationService{
+  rpc Replicate(State) returns (Empty);
+  rpc Ping(Empty) returns (Empty);
+}
+
+message State{
+  int64 highest_bid = 1;
+  int64 highest_bidder = 2;
+  repeated int64 bidder_ids = 3;
+
+}
+
+message Empty{}
