@@ -1,22 +1,40 @@
 package main
 
-import "sync"
+import (
+	pb "SingleLeaderReplication/proto"
+	"sync"
+	"time"
+)
+
+const rpcTimeout = 500 * time.Millisecond
 
 type Node struct {
-	ID            int
-	IsLeader      bool
-	LeaderID      int
-	HighestBid    int64
-	HighestBidder int64
-	AuctionEnded  bool
+	pb.UnimplementedAuctionServiceServer
 
-	mu sync.Mutex
+	ID    int
+	Peers map[int]string
+	mu    sync.Mutex
+
+
+
+	isLeader      bool
+	leaderID      int
+	highestBid    int64
+	highestBidder int64
+	bidders 	 map[int64]bool
+	auctionEnded  bool
+	endTime      time.Time
+
+	alivemu sync.Mutex
+	alive map[int64]bool
+	
+
 }
 
 func NewNode(id int, leaderID int) *Node {
 	return &Node{
 		ID:       id,
-		IsLeader: id == leaderID,
-		LeaderID: leaderID,
+		isLeader: id == leaderID,
+		leaderID: leaderID,
 	}
 }

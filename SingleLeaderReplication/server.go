@@ -17,20 +17,20 @@ func (s *AuctionServer) Bid(ctx context.Context, req *pb.BidRequest) (*pb.BidRes
 	s.node.mu.Lock()
 	defer s.node.mu.Unlock()
 
-	if !s.node.IsLeader {
+	if !s.node.isLeader {
 		return &pb.BidResponse{Ack: "exception"}, nil
 	}
 
-	if s.node.AuctionEnded {
+	if s.node.auctionEnded {
 		return &pb.BidResponse{Ack: "fail"}, nil
 	}
 
-	if req.Amount <= s.node.HighestBid {
+	if req.Amount <= s.node.highestBid {
 		return &pb.BidResponse{Ack: "fail"}, nil
 	}
 
-	s.node.HighestBid = req.Amount
-	s.node.HighestBidder = req.BidderId
+	s.node.highestBid = req.Amount
+	s.node.highestBidder = req.BidderId
 
 	return &pb.BidResponse{Ack: "success"}, nil
 }
@@ -44,8 +44,8 @@ func (s *AuctionServer) Result(
 	defer s.node.mu.Unlock()
 
 	return &pb.ResultResponse{
-		HighestBid:    s.node.HighestBid,
-		HighestBidder: s.node.HighestBidder,
-		AuctionEnded:  s.node.AuctionEnded,
+		HighestBid:    s.node.highestBid,
+		HighestBidder: s.node.highestBidder,
+		AuctionEnded:  s.node.auctionEnded,
 	}, nil
 }
