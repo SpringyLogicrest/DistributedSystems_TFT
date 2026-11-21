@@ -15,20 +15,16 @@ type Node struct {
 	Peers map[int]string
 	mu    sync.Mutex
 
-
-
 	isLeader      bool
 	leaderID      int
 	highestBid    int64
 	highestBidder int64
-	bidders 	 map[int64]bool
+	bidders       map[int64]bool
 	auctionEnded  bool
-	endTime      time.Time
+	endTime       time.Time
 
 	alivemu sync.Mutex
-	alive map[int64]bool
-	
-
+	alive   map[int64]bool
 }
 
 func NewNode(id int, leaderID int) *Node {
@@ -36,5 +32,9 @@ func NewNode(id int, leaderID int) *Node {
 		ID:       id,
 		isLeader: id == leaderID,
 		leaderID: leaderID,
+
+		Peers:   make(map[int]string),
+		bidders: make(map[int64]bool),
+		alive:   make(map[int64]bool),
 	}
 }
