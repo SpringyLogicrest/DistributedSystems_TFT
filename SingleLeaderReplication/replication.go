@@ -1,0 +1,1 @@
+//this file makes it possible to send updates/information to backup nodes
