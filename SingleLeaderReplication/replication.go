@@ -12,9 +12,26 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+type ReplicationServer struct {
+	pb.UnimplementedReplicationServiceServer
+	node *Node
+}
+
+
+// this function is used to send the state of the auction to the backup nodes
+// it is called by the leader when it receives a new bid
+func dial(address string) (pb.ReplicationServiceClient, *grpc.ClientConn, error) {
+	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return pb.NewReplicationServiceClient(conn), conn, nil
+}
+
 // this is the leader side
 func (n *Node) SendUpdate() {
-	// Fix 1: send the whole state, not a string.
+
 	n.mu.Lock()
 
 	bidderIDs := make([]int64, 0, len(n.bidders))
@@ -84,7 +101,3 @@ func (s *ReplicationServer) Replicate(
 	return &pb.Empty{}, nil
 }
 
-type ReplicationServer struct {
-	pb.UnimplementedReplicationServiceServer
-	node *Node
-}

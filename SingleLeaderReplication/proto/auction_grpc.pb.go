@@ -160,6 +160,7 @@ var AuctionService_ServiceDesc = grpc.ServiceDesc{
 
 const (
 	ReplicationService_Replicate_FullMethodName = "/proto.ReplicationService/Replicate"
+	ReplicationService_Heartbeat_FullMethodName = "/proto.ReplicationService/Heartbeat"
 	ReplicationService_Ping_FullMethodName      = "/proto.ReplicationService/Ping"
 )
 
@@ -168,7 +169,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ReplicationServiceClient interface {
 	Replicate(ctx context.Context, in *State, opts ...grpc.CallOption) (*Empty, error)
-	Ping(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
+	Heartbeat(ctx context.Context, in *State, opts ...grpc.CallOption) (*Empty, error)
+	Ping(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*State, error)
 }
 
 type replicationServiceClient struct {
@@ -189,9 +191,19 @@ func (c *replicationServiceClient) Replicate(ctx context.Context, in *State, opt
 	return out, nil
 }
 
-func (c *replicationServiceClient) Ping(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error) {
+func (c *replicationServiceClient) Heartbeat(ctx context.Context, in *State, opts ...grpc.CallOption) (*Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Empty)
+	err := c.cc.Invoke(ctx, ReplicationService_Heartbeat_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *replicationServiceClient) Ping(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*State, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(State)
 	err := c.cc.Invoke(ctx, ReplicationService_Ping_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -204,7 +216,8 @@ func (c *replicationServiceClient) Ping(ctx context.Context, in *Empty, opts ...
 // for forward compatibility.
 type ReplicationServiceServer interface {
 	Replicate(context.Context, *State) (*Empty, error)
-	Ping(context.Context, *Empty) (*Empty, error)
+	Heartbeat(context.Context, *State) (*Empty, error)
+	Ping(context.Context, *Empty) (*State, error)
 	mustEmbedUnimplementedReplicationServiceServer()
 }
 
@@ -218,7 +231,10 @@ type UnimplementedReplicationServiceServer struct{}
 func (UnimplementedReplicationServiceServer) Replicate(context.Context, *State) (*Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method Replicate not implemented")
 }
-func (UnimplementedReplicationServiceServer) Ping(context.Context, *Empty) (*Empty, error) {
+func (UnimplementedReplicationServiceServer) Heartbeat(context.Context, *State) (*Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method Heartbeat not implemented")
+}
+func (UnimplementedReplicationServiceServer) Ping(context.Context, *Empty) (*State, error) {
 	return nil, status.Error(codes.Unimplemented, "method Ping not implemented")
 }
 func (UnimplementedReplicationServiceServer) mustEmbedUnimplementedReplicationServiceServer() {}
@@ -260,6 +276,24 @@ func _ReplicationService_Replicate_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ReplicationService_Heartbeat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(State)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReplicationServiceServer).Heartbeat(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReplicationService_Heartbeat_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReplicationServiceServer).Heartbeat(ctx, req.(*State))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ReplicationService_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Empty)
 	if err := dec(in); err != nil {
@@ -288,6 +322,10 @@ var ReplicationService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Replicate",
 			Handler:    _ReplicationService_Replicate_Handler,
+		},
+		{
+			MethodName: "Heartbeat",
+			Handler:    _ReplicationService_Heartbeat_Handler,
 		},
 		{
 			MethodName: "Ping",

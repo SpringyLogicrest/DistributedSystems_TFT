@@ -218,6 +218,9 @@ type State struct {
 	HighestBid    int64                  `protobuf:"varint,1,opt,name=highest_bid,json=highestBid,proto3" json:"highest_bid,omitempty"`
 	HighestBidder int64                  `protobuf:"varint,2,opt,name=highest_bidder,json=highestBidder,proto3" json:"highest_bidder,omitempty"`
 	BidderIds     []int64                `protobuf:"varint,3,rep,packed,name=bidder_ids,json=bidderIds,proto3" json:"bidder_ids,omitempty"`
+	Seq           int64                  `protobuf:"varint,4,opt,name=seq,proto3" json:"seq,omitempty"`
+	EndTimeUnixMs int64                  `protobuf:"varint,5,opt,name=end_time_unix_ms,json=endTimeUnixMs,proto3" json:"end_time_unix_ms,omitempty"`
+	LeaderId      int64                  `protobuf:"varint,6,opt,name=leader_id,json=leaderId,proto3" json:"leader_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -273,6 +276,159 @@ func (x *State) GetBidderIds() []int64 {
 	return nil
 }
 
+func (x *State) GetSeq() int64 {
+	if x != nil {
+		return x.Seq
+	}
+	return 0
+}
+
+func (x *State) GetEndTimeUnixMs() int64 {
+	if x != nil {
+		return x.EndTimeUnixMs
+	}
+	return 0
+}
+
+func (x *State) GetLeaderId() int64 {
+	if x != nil {
+		return x.LeaderId
+	}
+	return 0
+}
+
+type ElectionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CandidateId   int64                  `protobuf:"varint,1,opt,name=candidate_id,json=candidateId,proto3" json:"candidate_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ElectionRequest) Reset() {
+	*x = ElectionRequest{}
+	mi := &file_proto_auction_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ElectionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ElectionRequest) ProtoMessage() {}
+
+func (x *ElectionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_auction_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ElectionRequest.ProtoReflect.Descriptor instead.
+func (*ElectionRequest) Descriptor() ([]byte, []int) {
+	return file_proto_auction_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ElectionRequest) GetCandidateId() int64 {
+	if x != nil {
+		return x.CandidateId
+	}
+	return 0
+}
+
+type ElectionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Ok            bool                   `protobuf:"varint,1,opt,name=ok,proto3" json:"ok,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ElectionResponse) Reset() {
+	*x = ElectionResponse{}
+	mi := &file_proto_auction_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ElectionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ElectionResponse) ProtoMessage() {}
+
+func (x *ElectionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_auction_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ElectionResponse.ProtoReflect.Descriptor instead.
+func (*ElectionResponse) Descriptor() ([]byte, []int) {
+	return file_proto_auction_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ElectionResponse) GetOk() bool {
+	if x != nil {
+		return x.Ok
+	}
+	return false
+}
+
+type CoordinatorRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	LeaderId      int64                  `protobuf:"varint,1,opt,name=leader_id,json=leaderId,proto3" json:"leader_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CoordinatorRequest) Reset() {
+	*x = CoordinatorRequest{}
+	mi := &file_proto_auction_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CoordinatorRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CoordinatorRequest) ProtoMessage() {}
+
+func (x *CoordinatorRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_auction_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CoordinatorRequest.ProtoReflect.Descriptor instead.
+func (*CoordinatorRequest) Descriptor() ([]byte, []int) {
+	return file_proto_auction_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CoordinatorRequest) GetLeaderId() int64 {
+	if x != nil {
+		return x.LeaderId
+	}
+	return 0
+}
+
 type Empty struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -281,7 +437,7 @@ type Empty struct {
 
 func (x *Empty) Reset() {
 	*x = Empty{}
-	mi := &file_proto_auction_proto_msgTypes[5]
+	mi := &file_proto_auction_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -293,7 +449,7 @@ func (x *Empty) String() string {
 func (*Empty) ProtoMessage() {}
 
 func (x *Empty) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_auction_proto_msgTypes[5]
+	mi := &file_proto_auction_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -306,67 +462,7 @@ func (x *Empty) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Empty.ProtoReflect.Descriptor instead.
 func (*Empty) Descriptor() ([]byte, []int) {
-	return file_proto_auction_proto_rawDescGZIP(), []int{5}
-}
-
-type ResultRequest_ResultResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	HighestBid    int64                  `protobuf:"varint,1,opt,name=highest_bid,json=highestBid,proto3" json:"highest_bid,omitempty"`
-	HighestBidder int64                  `protobuf:"varint,2,opt,name=highest_bidder,json=highestBidder,proto3" json:"highest_bidder,omitempty"`
-	AuctionEnded  bool                   `protobuf:"varint,3,opt,name=auction_ended,json=auctionEnded,proto3" json:"auction_ended,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ResultRequest_ResultResponse) Reset() {
-	*x = ResultRequest_ResultResponse{}
-	mi := &file_proto_auction_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ResultRequest_ResultResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ResultRequest_ResultResponse) ProtoMessage() {}
-
-func (x *ResultRequest_ResultResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_auction_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ResultRequest_ResultResponse.ProtoReflect.Descriptor instead.
-func (*ResultRequest_ResultResponse) Descriptor() ([]byte, []int) {
-	return file_proto_auction_proto_rawDescGZIP(), []int{2, 0}
-}
-
-func (x *ResultRequest_ResultResponse) GetHighestBid() int64 {
-	if x != nil {
-		return x.HighestBid
-	}
-	return 0
-}
-
-func (x *ResultRequest_ResultResponse) GetHighestBidder() int64 {
-	if x != nil {
-		return x.HighestBidder
-	}
-	return 0
-}
-
-func (x *ResultRequest_ResultResponse) GetAuctionEnded() bool {
-	if x != nil {
-		return x.AuctionEnded
-	}
-	return false
+	return file_proto_auction_proto_rawDescGZIP(), []int{8}
 }
 
 var File_proto_auction_proto protoreflect.FileDescriptor
@@ -379,31 +475,36 @@ const file_proto_auction_proto_rawDesc = "" +
 	"\x06amount\x18\x01 \x01(\x03R\x06amount\x12\x1b\n" +
 	"\tbidder_id\x18\x02 \x01(\x03R\bbidderId\"\x1f\n" +
 	"\vBidResponse\x12\x10\n" +
-	"\x03ack\x18\x01 \x01(\tR\x03ack\"\x8e\x01\n" +
-	"\rResultRequest\x1a}\n" +
+	"\x03ack\x18\x01 \x01(\tR\x03ack\"\x0f\n" +
+	"\rResultRequest\"}\n" +
 	"\x0eResultResponse\x12\x1f\n" +
 	"\vhighest_bid\x18\x01 \x01(\x03R\n" +
 	"highestBid\x12%\n" +
 	"\x0ehighest_bidder\x18\x02 \x01(\x03R\rhighestBidder\x12#\n" +
-	"\rauction_ended\x18\x03 \x01(\bR\fauctionEnded\"}\n" +
-	"\x0eResultResponse\x12\x1f\n" +
-	"\vhighest_bid\x18\x01 \x01(\x03R\n" +
-	"highestBid\x12%\n" +
-	"\x0ehighest_bidder\x18\x02 \x01(\x03R\rhighestBidder\x12#\n" +
-	"\rauction_ended\x18\x03 \x01(\bR\fauctionEnded\"n\n" +
+	"\rauction_ended\x18\x03 \x01(\bR\fauctionEnded\"\xc6\x01\n" +
 	"\x05State\x12\x1f\n" +
 	"\vhighest_bid\x18\x01 \x01(\x03R\n" +
 	"highestBid\x12%\n" +
 	"\x0ehighest_bidder\x18\x02 \x01(\x03R\rhighestBidder\x12\x1d\n" +
 	"\n" +
-	"bidder_ids\x18\x03 \x03(\x03R\tbidderIds\"\a\n" +
+	"bidder_ids\x18\x03 \x03(\x03R\tbidderIds\x12\x10\n" +
+	"\x03seq\x18\x04 \x01(\x03R\x03seq\x12'\n" +
+	"\x10end_time_unix_ms\x18\x05 \x01(\x03R\rendTimeUnixMs\x12\x1b\n" +
+	"\tleader_id\x18\x06 \x01(\x03R\bleaderId\"4\n" +
+	"\x0fElectionRequest\x12!\n" +
+	"\fcandidate_id\x18\x01 \x01(\x03R\vcandidateId\"\"\n" +
+	"\x10ElectionResponse\x12\x0e\n" +
+	"\x02ok\x18\x01 \x01(\bR\x02ok\"1\n" +
+	"\x12CoordinatorRequest\x12\x1b\n" +
+	"\tleader_id\x18\x01 \x01(\x03R\bleaderId\"\a\n" +
 	"\x05Empty2u\n" +
 	"\x0eAuctionService\x12,\n" +
 	"\x03Bid\x12\x11.proto.BidRequest\x1a\x12.proto.BidResponse\x125\n" +
-	"\x06Result\x12\x14.proto.ResultRequest\x1a\x15.proto.ResultResponse2a\n" +
+	"\x06Result\x12\x14.proto.ResultRequest\x1a\x15.proto.ResultResponse2\x8a\x01\n" +
 	"\x12ReplicationService\x12'\n" +
-	"\tReplicate\x12\f.proto.State\x1a\f.proto.Empty\x12\"\n" +
-	"\x04Ping\x12\f.proto.Empty\x1a\f.proto.EmptyB\x1fZ\x1dSingleLeaderReplication/protob\x06proto3"
+	"\tReplicate\x12\f.proto.State\x1a\f.proto.Empty\x12'\n" +
+	"\tHeartbeat\x12\f.proto.State\x1a\f.proto.Empty\x12\"\n" +
+	"\x04Ping\x12\f.proto.Empty\x1a\f.proto.StateB\x1fZ\x1dSingleLeaderReplication/protob\x06proto3"
 
 var (
 	file_proto_auction_proto_rawDescOnce sync.Once
@@ -417,27 +518,31 @@ func file_proto_auction_proto_rawDescGZIP() []byte {
 	return file_proto_auction_proto_rawDescData
 }
 
-var file_proto_auction_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_proto_auction_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_proto_auction_proto_goTypes = []any{
-	(*BidRequest)(nil),                   // 0: proto.BidRequest
-	(*BidResponse)(nil),                  // 1: proto.BidResponse
-	(*ResultRequest)(nil),                // 2: proto.ResultRequest
-	(*ResultResponse)(nil),               // 3: proto.ResultResponse
-	(*State)(nil),                        // 4: proto.State
-	(*Empty)(nil),                        // 5: proto.Empty
-	(*ResultRequest_ResultResponse)(nil), // 6: proto.ResultRequest.ResultResponse
+	(*BidRequest)(nil),         // 0: proto.BidRequest
+	(*BidResponse)(nil),        // 1: proto.BidResponse
+	(*ResultRequest)(nil),      // 2: proto.ResultRequest
+	(*ResultResponse)(nil),     // 3: proto.ResultResponse
+	(*State)(nil),              // 4: proto.State
+	(*ElectionRequest)(nil),    // 5: proto.ElectionRequest
+	(*ElectionResponse)(nil),   // 6: proto.ElectionResponse
+	(*CoordinatorRequest)(nil), // 7: proto.CoordinatorRequest
+	(*Empty)(nil),              // 8: proto.Empty
 }
 var file_proto_auction_proto_depIdxs = []int32{
 	0, // 0: proto.AuctionService.Bid:input_type -> proto.BidRequest
 	2, // 1: proto.AuctionService.Result:input_type -> proto.ResultRequest
 	4, // 2: proto.ReplicationService.Replicate:input_type -> proto.State
-	5, // 3: proto.ReplicationService.Ping:input_type -> proto.Empty
-	1, // 4: proto.AuctionService.Bid:output_type -> proto.BidResponse
-	3, // 5: proto.AuctionService.Result:output_type -> proto.ResultResponse
-	5, // 6: proto.ReplicationService.Replicate:output_type -> proto.Empty
-	5, // 7: proto.ReplicationService.Ping:output_type -> proto.Empty
-	4, // [4:8] is the sub-list for method output_type
-	0, // [0:4] is the sub-list for method input_type
+	4, // 3: proto.ReplicationService.Heartbeat:input_type -> proto.State
+	8, // 4: proto.ReplicationService.Ping:input_type -> proto.Empty
+	1, // 5: proto.AuctionService.Bid:output_type -> proto.BidResponse
+	3, // 6: proto.AuctionService.Result:output_type -> proto.ResultResponse
+	8, // 7: proto.ReplicationService.Replicate:output_type -> proto.Empty
+	8, // 8: proto.ReplicationService.Heartbeat:output_type -> proto.Empty
+	4, // 9: proto.ReplicationService.Ping:output_type -> proto.State
+	5, // [5:10] is the sub-list for method output_type
+	0, // [0:5] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -454,7 +559,7 @@ func file_proto_auction_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_auction_proto_rawDesc), len(file_proto_auction_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

@@ -16,30 +16,29 @@ message BidResponse{
   string ack = 1;
 }
 
-message ResultRequest{
-  message ResultResponse{
+message ResultRequest{}
+message ResultResponse{
     int64 highest_bid    = 1;
     int64 highest_bidder = 2;
     bool  auction_ended  = 3;
-  }
 }
-
-message ResultResponse{
-  int64 highest_bid    = 1;
-  int64 highest_bidder = 2;
-  bool  auction_ended  = 3;
-}
-
 service ReplicationService{
-  rpc Replicate(State) returns (Empty);
-  rpc Ping(Empty) returns (Empty);
+  rpc Replicate(State) returns (Empty);  
+  rpc Heartbeat(State) returns (Empty);  
+  rpc Ping(Empty) returns (State); 
 }
 
 message State{
   int64          highest_bid    = 1;
   int64          highest_bidder = 2;
   repeated int64 bidder_ids     = 3;
+  int64 seq  = 4;
+  int64 end_time_unix_ms = 5;
+  int64 leader_id = 6;
 
 }
 
+message ElectionRequest {int64 candidate_id = 1;}
+message ElectionResponse   { bool ok = 1; }
+message CoordinatorRequest { int64 leader_id = 1; }
 message Empty{}

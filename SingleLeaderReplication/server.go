@@ -14,6 +14,9 @@ type AuctionServer struct {
 
 func (s *AuctionServer) Bid(ctx context.Context, req *pb.BidRequest) (*pb.BidResponse, error) {
 
+	s.node.bidMu.Lock()
+	defer s.node.bidMu.Unlock()
+
 	s.node.mu.Lock()
 
 	if !s.node.isLeader {
@@ -21,7 +24,7 @@ func (s *AuctionServer) Bid(ctx context.Context, req *pb.BidRequest) (*pb.BidRes
 		return &pb.BidResponse{Ack: "exception"}, nil
 	}
 
-	if s.node.auctionEnded {
+	if s.node.ended() {
 		s.node.mu.Unlock()
 		return &pb.BidResponse{Ack: "fail"}, nil
 	}
@@ -54,6 +57,6 @@ func (s *AuctionServer) Result(
 	return &pb.ResultResponse{
 		HighestBid:    s.node.highestBid,
 		HighestBidder: s.node.highestBidder,
-		AuctionEnded:  s.node.auctionEnded,
+		AuctionEnded:  s.node.ended(),
 	}, nil
 }
