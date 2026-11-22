@@ -11,6 +11,11 @@ import (
 )
 
 // we start by making failure detection
+
+// this function is used to run the failure detection in a separate goroutine
+// it runsfor every node and checks if the leader is alive or not
+// and it runs forever until the program is terminated
+
 func (n *Node) RunFailureDetection() {
 	for {
 		time.Sleep(heartbeatInterval)
@@ -30,6 +35,7 @@ func (n *Node) RunFailureDetection() {
 }
 
 // the leader sends heartbeats to the followers to let them know that it is still alive
+// its basically a message saying "im alive " 
 func (n *Node) sendHeartbeats() {
 	n.mu.Lock()
 	state := n.snapshot()
@@ -49,6 +55,8 @@ func (n *Node) sendHeartbeats() {
 
 // this is the bully logic so when the leader is dead
 // then the node with the lowest id will beocome a leader
+// so it checks if there is a node wirh a lower id if they answer then that node will become the leader
+//if the node does not answer then the node will become the leder
 func (n *Node) startElection() {
 	for id := 0; id < n.ID; id++ {
 		if n.ping(id) != nil {
@@ -68,6 +76,7 @@ func (n *Node) startElection() {
 
 // this function is called when a node becomes the leader
 // what it does is that it pings all the other nodes to get their state and then it applies the state to itself
+
 func (n *Node) becomeLeader() {
 	for id :=  range n.Peers {
 		state := n.ping(id)

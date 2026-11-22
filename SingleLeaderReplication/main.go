@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net"
 
-	//"time"
+	"time"
 
 	pb "SingleLeaderReplication/proto"
 
@@ -56,10 +56,22 @@ func main() {
 
 	pb.RegisterAuctionServiceServer(grpcServer, auctionServer)
 
+	node.lastHeartbeat = time.Now().Add(startupDelay)
+
+	
+	if node.isLeader {
+		node.endTime = time.Now().Add(auctionDuration)
+	}
+
+	
+	go node.RunFailureDetection()
+
 	fmt.Println("Node", node.ID, "listening on", address)
 
 	if err := grpcServer.Serve(listener); err != nil {
 		fmt.Println("Server failed:", err)
 	}
+
+	
 
 }
