@@ -157,3 +157,143 @@ var AuctionService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "proto/auction.proto",
 }
+
+const (
+	ReplicationService_Replicate_FullMethodName = "/proto.ReplicationService/Replicate"
+	ReplicationService_Ping_FullMethodName      = "/proto.ReplicationService/Ping"
+)
+
+// ReplicationServiceClient is the client API for ReplicationService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type ReplicationServiceClient interface {
+	Replicate(ctx context.Context, in *State, opts ...grpc.CallOption) (*Empty, error)
+	Ping(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
+}
+
+type replicationServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewReplicationServiceClient(cc grpc.ClientConnInterface) ReplicationServiceClient {
+	return &replicationServiceClient{cc}
+}
+
+func (c *replicationServiceClient) Replicate(ctx context.Context, in *State, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, ReplicationService_Replicate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *replicationServiceClient) Ping(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, ReplicationService_Ping_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ReplicationServiceServer is the server API for ReplicationService service.
+// All implementations must embed UnimplementedReplicationServiceServer
+// for forward compatibility.
+type ReplicationServiceServer interface {
+	Replicate(context.Context, *State) (*Empty, error)
+	Ping(context.Context, *Empty) (*Empty, error)
+	mustEmbedUnimplementedReplicationServiceServer()
+}
+
+// UnimplementedReplicationServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedReplicationServiceServer struct{}
+
+func (UnimplementedReplicationServiceServer) Replicate(context.Context, *State) (*Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method Replicate not implemented")
+}
+func (UnimplementedReplicationServiceServer) Ping(context.Context, *Empty) (*Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method Ping not implemented")
+}
+func (UnimplementedReplicationServiceServer) mustEmbedUnimplementedReplicationServiceServer() {}
+func (UnimplementedReplicationServiceServer) testEmbeddedByValue()                            {}
+
+// UnsafeReplicationServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ReplicationServiceServer will
+// result in compilation errors.
+type UnsafeReplicationServiceServer interface {
+	mustEmbedUnimplementedReplicationServiceServer()
+}
+
+func RegisterReplicationServiceServer(s grpc.ServiceRegistrar, srv ReplicationServiceServer) {
+	// If the following call panics, it indicates UnimplementedReplicationServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&ReplicationService_ServiceDesc, srv)
+}
+
+func _ReplicationService_Replicate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(State)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReplicationServiceServer).Replicate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReplicationService_Replicate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReplicationServiceServer).Replicate(ctx, req.(*State))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ReplicationService_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReplicationServiceServer).Ping(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReplicationService_Ping_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReplicationServiceServer).Ping(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// ReplicationService_ServiceDesc is the grpc.ServiceDesc for ReplicationService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ReplicationService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.ReplicationService",
+	HandlerType: (*ReplicationServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Replicate",
+			Handler:    _ReplicationService_Replicate_Handler,
+		},
+		{
+			MethodName: "Ping",
+			Handler:    _ReplicationService_Ping_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "proto/auction.proto",
+}

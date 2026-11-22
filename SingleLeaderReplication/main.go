@@ -25,6 +25,12 @@ func main() {
 
 	node := NewNode(*id, 0)
 
+	for peerID, address := range addrs {
+		if peerID != node.ID {
+			node.Peers[peerID] = address
+		}
+	}
+
 	fmt.Println("Starting node:", node.ID)
 	fmt.Println("Is leader:", node.isLeader)
 
@@ -41,6 +47,12 @@ func main() {
 	auctionServer := &AuctionServer{
 		node: node,
 	}
+
+	replicationServer := &ReplicationServer{
+		node: node,
+	}
+
+	pb.RegisterReplicationServiceServer(grpcServer, replicationServer)
 
 	pb.RegisterAuctionServiceServer(grpcServer, auctionServer)
 
